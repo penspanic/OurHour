@@ -7,12 +7,17 @@ class Message:
         self.datetime = datetime
         self.messageLines = messageLines
         self.giftMessages = {} # sender, message[]
+        self.replyTerm = None # datetime.timedelta
     
     def getMessage(self):
         return '\n'.join(self.messageLines)
 
     def __str__(self):
-        return f'{self.sender} {self.datetime} {self.getMessage()}'
+        s = f'{self.sender} {self.datetime}'
+        if self.replyTerm is not None:
+            s += f' term:({self.replyTerm})'
+        s += f' {self.getMessage()}'
+        return s
 
     def __repr__(self):
         return f'{self.sender} {self.datetime} {self.getMessage()}'
@@ -21,6 +26,7 @@ class MessageHistory:
     def __init__(self):
         self.messages = []
         self.messagesByDate = {}
+        self.lastReplyTimeBySender = {}
 
     def addMessage(self, message: Message):
         self.messages.append(message)
@@ -28,6 +34,20 @@ class MessageHistory:
         if dt not in self.messagesByDate:
             self.messagesByDate[dt] = []
         self.messagesByDate[dt].append(message)
+
+        # get other sender name
+        otherSender = None
+        for sender in self.lastReplyTimeBySender.keys():
+            if sender != message.sender:
+                otherSender = sender
+                break
+        
+        if otherSender is not None:
+            message.replyTerm = message.datetime - self.lastReplyTimeBySender.get(otherSender, message.datetime)
+        else:
+            message.replyTerm = None
+
+        self.lastReplyTimeBySender[message.sender] = message.datetime
 
         if MessageUtil.IsGift(message):
             if message.sender not in self.messagesByDate:
