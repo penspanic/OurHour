@@ -2,13 +2,16 @@ from typing import List
 import re
 import datetime as dt
 import dateutil.parser
+from MessageHistory import MessageHistory
 import Messages
+import Utils
 
 class ChatParser:
     messageHeaderPattern = re.compile(r'\[(.*)\] \[([0-9]+:[0-9]+ (PM|AM))\] (.*)')
     # 2016. 7. 19. 오후 3:14, Sender : Message
     #                                     Year       Month      Date       오전/오후    Hour     Minute    Sender     Message
-    messageHeaderPattern2 = re.compile(r'([0-9]+)\. ([0-9]+)\. ([0-9]+)\. (오전|오후) ([0-9]+):([0-9]+), (.*) : (.*)')
+    messageHeaderPattern2 = re.compile(r'([0-9]+)\. ([0-9]+)\. ([0-9]+)\. (오전|오후) ([0-9]+):([0-9]+), (.*?) : (.*)')
+    #messageHeaderPattern2 = re.compile(r'([0-9]+)\. ([0-9]+)\. ([0-9]+)\. (오전|오후) ([0-9]+):([0-9]+), (.*) : (.*)')
     
     #                                              Day(eng)  Month(eng)    Date(num)  Year(num)
     newDatePattern = re.compile(r'--------------- ([a-zA-Z]+), ([a-zA-Z]+) ([0-9]+), ([0-9]+) ---------------')
@@ -30,7 +33,7 @@ class ChatParser:
             # lines[3] : 
             lines = lines[3:]
             
-            messageHistory = Messages.MessageHistory()
+            messageHistory = MessageHistory()
             messageLines = None
             messageSender = ''
             messageDatetime = None
@@ -87,3 +90,9 @@ if __name__ == "__main__":
         print(date)
         for message in messages:
             print('\t', str(message))
+
+    personInfos = Utils.CreatePersonInfos(history)
+    for personInfo in personInfos:
+        print(personInfo.name)
+        print(f'replyTermNormalized: {Utils.formatTimeDelta(personInfo.replyTermNormalized)}')
+        print('')

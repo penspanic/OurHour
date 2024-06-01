@@ -1,20 +1,31 @@
-from Messages import Message
-import typing
+import Messages
+from typing import List
 import datetime
 
 class PersonInfo:
-    def __init__(self, name: str, messages: list):
+    def __init__(self, name: str, messages: List[Messages.Message]):
         self.name = name
         self.messages = messages
 
-        replyTerms = []
+        replyTerms = [] # type: List[datetime.timedelta]
         for message in messages:
             if message.replyTerm is None:
                 continue
 
             replyTerms.append(message.replyTerm)
-        
-        self.replyTermNormalized = sum(replyTerms, datetime.timedelta()) / len(replyTerms) if len(replyTerms) > 0 else None
+
+        # replyTerms를 seconds로 변환
+        # replyTerms = [term.total_seconds() for term in replyTerms]
+
+        termSum = datetime.timedelta()
+        for term in replyTerms:
+            termSum += term
+
+        #termSum = sum(replyTerms)
+        termCount = len(replyTerms)
+        print(f'replyTermNormalized = {termSum} / {termCount if termCount > 0 else None}')
+        self.replyTermNormalized = termSum / termCount if termCount > 0 else None
+
 
 class Comparison:
     def __init__(self, person1: PersonInfo, person2: PersonInfo):
