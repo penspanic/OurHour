@@ -93,6 +93,7 @@ if __name__ == "__main__":
 
     personInfos = Utils.CreatePersonInfos(history)
     for personInfo in personInfos:
+        print()
         print(personInfo.name)
         print(f'replyTermNormalized: {Utils.formatTimeDelta(personInfo.replyTermNormalized)}')
         print('')

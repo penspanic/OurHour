@@ -15,8 +15,15 @@ def formatTimeDelta(delta: timedelta) -> str:
 
 def CreatePersonInfos(history: MessageHistory) -> List[PersonInfo]:
     personInfos = []
-    for sender in history.lastReplyTimeBySender.keys():
-        messages = [message for message in history.messages if message.sender == sender]
+    # filter messages in history.messages by sender
+    messagesBySender = {}
+    for message in history.messages:
+        if message.sender not in messagesBySender:
+            messagesBySender[message.sender] = []
+        messagesBySender[message.sender].append(message)
+
+    for sender, messages in messagesBySender.items():
         personInfo = PersonInfo(sender, messages)
         personInfos.append(personInfo)
+
     return personInfos
