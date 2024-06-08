@@ -1,8 +1,10 @@
 import re
+import datetime
 
 from Messages import Message, MessageAttributes, MessageUtil
 
 class MessageHistory:
+    sunTalkThreshold = datetime.timedelta(days=1)
     def __init__(self):
         self.messages = []
         self.messagesByDate = {}
@@ -35,6 +37,9 @@ class MessageHistory:
 
         if MessageUtil.IsEmoticon(message):
             message.attributes.add(MessageAttributes.emoticon)
+
+        if MessageUtil.IsSunTalk(message, self.messagesByDate[dt], MessageHistory.sunTalkThreshold):
+            message.attributes.add(MessageAttributes.suntalk)
 
     def __str__(self):
         return '\n'.join([str(message) for message in self.messages])

@@ -5,6 +5,7 @@ import typing
 class MessageAttributes:
     gift = 'gift'
     emoticon = 'emoticon'
+    suntalk = 'suntalk' # 선톡
 
 class Message:
     def __init__(self, sender: str, datetime: datetime.datetime, messageLines: str):
@@ -42,3 +43,20 @@ class MessageUtil:
     @staticmethod
     def IsEmoticon(message: Message):
         return len(message.messageLines) == 1 and MessageUtil.emoticonPattern.match(message.messageLines[0]) is not None
+    
+    @staticmethod
+    def IsSunTalk(message: Message, messages: typing.List[Message], threshold: datetime.timedelta):
+        if len(messages) == 0:
+            return True
+        
+        # 메세지를 뒤에서부터 확인하면서 상대방이 보낸 마지막 메세지를 찾는다
+        lastMessage = None
+        for m in reversed(messages):
+            if m.sender != message.sender:
+                lastMessage = m
+                break
+
+        if lastMessage is None:
+            return True
+        
+        return message.datetime - lastMessage.datetime > threshold
