@@ -4,11 +4,15 @@ import datetime
 from Messages import Message, MessageAttributes, MessageUtil
 
 class MessageHistory:
+    # static fields
     sunTalkThreshold = datetime.timedelta(days=1)
+
+
     def __init__(self):
         self.messages = []
         self.messagesByDate = {}
         self.lastReplyTimeBySender = {}
+        self.messagesByMonth = {}
 
     def addMessage(self, message: Message):
         self.messages.append(message)
@@ -32,6 +36,12 @@ class MessageHistory:
 
         self.lastReplyTimeBySender[message.sender] = message.datetime
 
+        # messages by month
+        month = message.datetime.replace(day=1)
+        if month not in self.messagesByMonth:
+            self.messagesByMonth[month] = []
+        self.messagesByMonth[month].append(message)
+
         if MessageUtil.IsGift(message):
             message.attributes.add(MessageAttributes.gift)
 
@@ -46,5 +56,3 @@ class MessageHistory:
 
     def __repr__(self):
         return '\n'.join([str(message) for message in self.messages])
-
-
