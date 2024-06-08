@@ -104,7 +104,8 @@ def MainView(index, file_list) :
 def InitialFunction() :
     breakFlag = False
     selectIdx = 0
-    file_list_txt = find_file("./")
+    findDirectory = "./"
+    file_list_txt = find_file(findDirectory)
 
     while True : 
         if breakFlag == True : 
@@ -129,7 +130,7 @@ def InitialFunction() :
 
             if keyboard.is_pressed('enter'): #엔터 키 입력
                 time.sleep(0.2)
-                AnalyzeView(f"./{file_list_txt[selectIdx]}")
+                AnalyzeView(f"{findDirectory}{file_list_txt[selectIdx]}")
                 
                 ResultView()
                 break
