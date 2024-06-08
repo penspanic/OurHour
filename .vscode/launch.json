@@ -12,6 +12,13 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Python Debugger: CLI",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/cli.py",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Python Debugger: ChatParser",
             "type": "debugpy",
             "request": "launch",
