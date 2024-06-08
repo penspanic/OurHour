@@ -53,7 +53,7 @@ class ChatParser:
 
                 messageHeader = ChatParser.messageHeaderPattern.match(line)
                 if messageHeader:
-                    if messageLines and len(messageLines) > 0:
+                    if messageLines is not None and len(messageLines) > 0:
                         msg = Messages.Message(messageSender, messageDatetime, messageLines)
                         messageHistory.addMessage(msg)
                     messageLines = []
