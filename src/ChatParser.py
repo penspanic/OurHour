@@ -5,6 +5,8 @@ import dateutil.parser
 from MessageHistory import MessageHistory
 import Messages
 import Utils
+import os
+from pathlib import Path
 
 class ChatParser:
     messageHeaderPattern = re.compile(r'\[(.*)\] \[([0-9]+:[0-9]+ (PM|AM))\] (.*)')
@@ -85,7 +87,13 @@ class ChatParser:
         return messageHistory
 
 if __name__ == "__main__":
-    history = ChatParser.parseOneFile("path-to-chat-file.txt")
+    # get args.txt in same directory
+    argsContent = None
+    p = Path(__file__).with_name('args.txt')
+    with p.open('r', encoding='utf-8') as f:
+        argsContent = f.read()
+
+    history = ChatParser.parseOneFile(argsContent)
     for date, messages in history.messagesByDate.items():
         print(date)
         for message in messages:
@@ -93,7 +101,4 @@ if __name__ == "__main__":
 
     personInfos = Utils.CreatePersonInfos(history)
     for personInfo in personInfos:
-        print()
-        print(personInfo.name)
-        print(f'replyTermNormalized: {Utils.formatTimeDelta(personInfo.replyTermNormalized)}')
-        print('')
+        personInfo.print()

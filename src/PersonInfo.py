@@ -1,6 +1,7 @@
 import Messages
 from typing import List
 import datetime
+import Utils
 
 class PersonInfo:
     def __init__(self, name: str, messages: List[Messages.Message]):
@@ -14,17 +15,20 @@ class PersonInfo:
 
             replyTerms.append(message.replyTerm)
 
-        # replyTerms를 seconds로 변환
-        # replyTerms = [term.total_seconds() for term in replyTerms]
-
         termSum = datetime.timedelta()
         for term in replyTerms:
             termSum += term
 
-        #termSum = sum(replyTerms)
         termCount = len(replyTerms)
         print(f'replyTermNormalized = {termSum} / {termCount if termCount > 0 else None}')
         self.replyTermNormalized = termSum / termCount if termCount > 0 else None
+        self.AverageMessageLength = sum([len(message.getMessage()) for message in messages]) / len(messages) if len(messages) > 0 else None
+
+    def print(self):
+        print()
+        print(self.name)
+        print(f'replyTermNormalized: {Utils.formatTimeDelta(self.replyTermNormalized)}')
+        print(f'AverageMessageLength: {self.AverageMessageLength}')
 
 
 class Comparison:
