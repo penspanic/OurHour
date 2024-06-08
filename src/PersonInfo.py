@@ -23,12 +23,14 @@ class PersonInfo:
         print(f'replyTermNormalized = {termSum} / {termCount if termCount > 0 else None}')
         self.replyTermNormalized = termSum / termCount if termCount > 0 else None
         self.AverageMessageLength = sum([len(message.getMessage()) for message in messages]) / len(messages) if len(messages) > 0 else None
+        self.giftSentCount = len([message for message in messages if Messages.MessageUtil.IsGift(message)])
 
     def print(self):
         print()
         print(self.name)
         print(f'replyTermNormalized: {Utils.formatTimeDelta(self.replyTermNormalized)}')
         print(f'AverageMessageLength: {self.AverageMessageLength}')
+        print(f'giftSentCount: {self.giftSentCount}')
 
 
 class Comparison:

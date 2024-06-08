@@ -28,18 +28,15 @@ class Message:
         return f'{self.sender} {self.datetime} {self.getMessage()}'
 
 class MessageUtil:
-    giftPatterns = [
-        re.compile("선물과 메세지를 보냈습니다."),
-        re.compile("선물을 보냈습니다.")
-    ]
-
     emoticonPattern = re.compile("이모티콘\s*$")
 
     @staticmethod
     def IsGift(message: Message):
-        for pattern in MessageUtil.giftPatterns:
-            if pattern.match(message.getMessage()):
-                return True
+        messageStr = message.getMessage()
+        if "선물과 메시지를 보냈습니다." in messageStr:
+            return True
+        if "선물을 보냈습니다." in messageStr:
+            return True
         return False
     
     @staticmethod
