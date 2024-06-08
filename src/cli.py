@@ -58,16 +58,20 @@ def AnalyzeView(path) :
 
         task1 = progress.add_task(f"[red]{path} 파일 분석중...", total=100)
         while not progress.finished:
-            progress.update(task1, advance=0.5)
+            progress.update(task1, advance=10)
             time.sleep(0.02)
 
     try :
         result = ChatParser.ChatParser.parseOneFile(path)
-        print(result)
 
     except Exception :
-        console.print("[red bold]입력하신 파일을 분석하는데 실패하였습니다.\n다른 파일을 선택해 주세요.\n3초 뒤에 메인 화면으로 이동합니다.",justify="center")
-        time.sleep(3.0)
+        # for i in range(3,0,-1) :
+        #     console.clear()
+        #     console.print(f"[red bold]입력하신 파일을 분석하는데 실패하였습니다.\n다른 파일을 선택해 주세요.\n{i}초 뒤에 메인 화면으로 이동합니다.",justify="center")
+        #     time.sleep(1)
+        console.print(f"[red bold]입력하신 파일을 분석하는데 실패하였습니다.\n다른 파일을 선택해 주세요.\n3초 뒤에 메인 화면으로 이동합니다.",justify="center")
+        time.sleep(3)
+            
         return -1
 
     return 1
@@ -91,7 +95,7 @@ def MainView(index, file_list) :
     console.clear()
     console.print(
         """┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n"""
-        """\n"""
+        # """\n"""
         # """╔┓┏╦━━╦┓╔┓╔━━╗\n"""
         # """║┗┛║┗━╣┃║┃║╯╰║\n"""
         # """║┏┓║┏━╣┗╣┗╣╰╯║\n"""
@@ -114,6 +118,7 @@ def MainView(index, file_list) :
         """이 프로그램은 카카오톡 대화를 분석하는 프로그램 입니다.\n"""
         """원하는 상대와의 대화를 분석하여 상대의 호감도를 알고 싶다면\n"""
         """프로그램과 같은 폴더에 확장자가 "txt"인 카카오톡 대화 파일을 넣어 주세요!! \n"""
+        """[magenta]프로그램을 종료하려면 ESC키를 눌러주세요.\n[/magenta]"""
         """[cyan italic]내보내기 방법 : 카카오톡 > 채팅방 설정 > 대화 내용 관리 > 대화 내용 저장\n[/cyan italic]"""
         """\n"""
         """┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n"""
@@ -160,6 +165,9 @@ def InitialFunction() :
                     break
 
                 ResultView()
+                break
+            if keyboard.is_pressed('ESC'): #엔터 키 입력
+                breakFlag=True  
                 break
 
 
