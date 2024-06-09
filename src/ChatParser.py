@@ -2,6 +2,7 @@ from typing import List
 import re
 import datetime as dt
 import dateutil.parser
+from InsightsByPeriod import InsightsByPeroid
 from MessageHistory import MessageHistory
 import Messages
 import Utils
@@ -94,11 +95,19 @@ if __name__ == "__main__":
         argsContent = f.read()
 
     history = ChatParser.parseOneFile(argsContent)
-    for date, messages in history.messagesByDate.items():
-        print(date)
-        for message in messages:
-            print('\t', str(message))
+    # for date, messages in history.messagesByDate.items():
+    #     print(date)
+    #     for message in messages:
+    #         print('\t', str(message))
 
     personInfos = Utils.CreatePersonInfos(history)
     for personInfo in personInfos:
         personInfo.print()
+    
+    monthlyInsights = InsightsByPeroid.createMonthly(history)
+    for monthlyInsight in monthlyInsights:
+        monthlyInsight.print()
+        
+    yearlyInsights = InsightsByPeroid.createYearly(history)
+    for yearlyInsight in yearlyInsights:
+        yearlyInsight.print()
