@@ -11,6 +11,7 @@ class MessageHistory:
     def __init__(self):
         self.messages = []
         self.messagesByDate = {}
+        self.messagesBySender = {}
         self.lastReplyTimeBySender = {}
         self.messagesByMonth = {}
 
@@ -20,6 +21,10 @@ class MessageHistory:
         if dt not in self.messagesByDate:
             self.messagesByDate[dt] = []
         self.messagesByDate[dt].append(message)
+
+        if message.sender not in self.messagesBySender:
+            self.messagesBySender[message.sender] = []
+        self.messagesBySender[message.sender].append(message)
 
         # get other sender name
         otherSender = None

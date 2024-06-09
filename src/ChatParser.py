@@ -2,6 +2,7 @@ from typing import List
 import re
 import datetime as dt
 import dateutil.parser
+from ConversationInfo import ConversationInfo
 from InsightsByPeriod import InsightsByPeroid
 from MessageHistory import MessageHistory
 import Messages
@@ -111,3 +112,9 @@ if __name__ == "__main__":
     yearlyInsights = InsightsByPeroid.createYearly(history)
     for yearlyInsight in yearlyInsights:
         yearlyInsight.print()
+
+    conversationInfo = ConversationInfo.create(history, '박근희')
+    if conversationInfo:
+        print(conversationInfo.asDict())
+    else:
+        print('No conversation found')
