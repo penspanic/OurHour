@@ -34,14 +34,11 @@ class PersonInfo:
         print(f'giftSentCount: {self.giftSentCount}')
         print(f'sunTalkCount: {self.sunTalkCount}')
 
-
-class Comparison:
-    def __init__(self, person1: PersonInfo, person2: PersonInfo):
-        self.person1 = person1
-        self.person2 = person2
-
-        self.replyTermDiff = person1.replyTermNormalized - person2.replyTermNormalized if person1.replyTermNormalized is not None and person2.replyTermNormalized is not None else None
-
-        # 비교 항목
-        # 답장 텀(정규화)
-        #  - 답장 텀 총합 / 메세지 개수
+    def asDict(self):
+        return {
+            '이름': self.name,
+            '평균 답장 텀': Utils.formatTimeDelta(self.replyTermNormalized),
+            '평균 메세지 길이': self.AverageMessageLength,
+            '선물 횟수': self.giftSentCount,
+            '선톡 횟수': self.sunTalkCount
+        }
