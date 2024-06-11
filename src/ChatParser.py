@@ -101,7 +101,7 @@ if __name__ == "__main__":
     #     for message in messages:
     #         print('\t', str(message))
 
-    personInfos = Utils.CreatePersonInfos(history)
+    personInfos = Utils.createPersonInfos(history)
     for personInfo in personInfos:
         personInfo.print()
     

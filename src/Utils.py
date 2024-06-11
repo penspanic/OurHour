@@ -13,17 +13,13 @@ def formatTimeDelta(delta: timedelta) -> str:
     return f'{days}d {hours}h {minutes}m {seconds}s'
 
 
-def CreatePersonInfos(history: MessageHistory) -> List[PersonInfo]:
+def createPersonInfos(history: MessageHistory) -> List[PersonInfo]:
     personInfos = []
-    # filter messages in history.messages by sender
-    messagesBySender = {}
-    for message in history.messages:
-        if message.sender not in messagesBySender:
-            messagesBySender[message.sender] = []
-        messagesBySender[message.sender].append(message)
-
-    for sender, messages in messagesBySender.items():
-        personInfo = PersonInfo(sender, messages)
-        personInfos.append(personInfo)
+    for name in history.messagesBySender.keys():
+        personInfos.append(createPersonInfo(history, name))
 
     return personInfos
+
+def createPersonInfo(history: MessageHistory, name: str) -> PersonInfo:
+    messages = [message for message in history.messages if message.sender == name]
+    return PersonInfo(name, messages)

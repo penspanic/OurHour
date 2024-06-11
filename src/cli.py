@@ -8,6 +8,29 @@ from rich.progress import Progress, BarColumn
 from rich.table import Table
 from rich.console import Console
 
+from MessageHistory import MessageHistory
+from PersonInfo import PersonInfo
+from Utils import *
+
+class UIState:
+    def __init__(self):
+        self.uiStep = 0
+        self.selectedFileIdx = 0
+        self.selectedNameIdx = 0
+        self.findDirectory = ''
+        self.file_list = []
+        self.name_list = []
+        self.analyze_result_list = []
+        
+    def Reset(self):
+        self.uiStep = 0
+        self.selectedFileIdx = 0
+        self.selectedNameIdx = 0
+        self.findDirectory = ''
+        #self.file_list = [] 계속 사용
+        self.name_list = []
+        self.analyze_result_list = []
+
 
 """
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣶⣶⣄⠀⣀⣴⣦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
@@ -26,14 +49,16 @@ from rich.console import Console
 console = Console()
 
 
-def ResultView() :
+def ResultView(result: MessageHistory, myPersonInfo: PersonInfo) :
     console.clear()
     table = Table(title="[bold][대화 내용 분석 결과][/bold]",title_justify="center")
 
     table.add_column("항목", justify="center", style="cyan", no_wrap=True)
-    table.add_column("점수", style="magenta")
+    table.add_column("수치", style="magenta")
     # table.add_column("Box Office", justify="right", style="green")
 
+    personInfos = createPersonInfos(result)
+    myPersonInfo = personInfos
     table.add_row("답장 시간", "평균 10분")
     table.add_row("", "")
     table.add_row("호감도", "90%")
@@ -52,7 +77,7 @@ def ResultView() :
 
 
 
-def AnalyzeView(path) :
+def AnalyzeView(path) -> MessageHistory:
     
     with Progress() as progress:
 
@@ -72,11 +97,9 @@ def AnalyzeView(path) :
         console.print(f"[red bold]입력하신 파일을 분석하는데 실패하였습니다.\n다른 파일을 선택해 주세요.\n3초 뒤에 메인 화면으로 이동합니다.",justify="center")
         time.sleep(3)
             
-        return -1
+        return None
 
-    return 1
-
-
+    return result
 
 
 def find_file(path:str) :
@@ -88,7 +111,7 @@ def find_file(path:str) :
 
     return file_list_txt
 
-def MainView(index, file_list) :
+def MainView(uiState: UIState) :
     
 
     # os.system('clear')
@@ -124,51 +147,95 @@ def MainView(index, file_list) :
         """┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n"""
         ,justify="center")
     
-    console.print("[italic cyan] [bold]파일 선택[/bold] (상하 방향키로 조작하고, 엔터를 눌러 선택하세요)  [/italic cyan]", justify="center")
-    for i in range(len(file_list)) :
-        if i == index : console.print(f"   > {file_list[i]}", style="bold red")
-        else : console.print("     "+file_list[i], style="dim")
+    if uiState.uiStep == 0:
+        console.print("[italic cyan] [bold]파일 선택[/bold] (상하 방향키로 조작하고, 엔터를 눌러 선택하세요)  [/italic cyan]", justify="center")
+        for i in range(len(uiState.file_list)) :
+            if i == uiState.selectedFileIdx : console.print(f"   > {uiState.file_list[i]}", style="bold red")
+            else : console.print("     "+uiState.file_list[i], style="dim")
+    elif uiState.uiStep == 1:
+        console.print("[italic cyan] 내 이름을 고르세요  [/italic cyan]", justify="center")
+        for i in range(len(uiState.name_list)) :
+            if i == uiState.selectedNameIdx : console.print(f"   > {uiState.name_list[i]}", style="bold red")
+            else : console.print("     "+uiState.name_list[i], style="dim")
 
+
+selectedFileIdx = 0
+selectedNameIdx = 0
 
 
 def InitialFunction() :
     breakFlag = False
-    selectIdx = 0
-    findDirectory = "./"
-    file_list_txt = find_file(findDirectory)
-
+    uiState = UIState()
+    uiState.findDirectory = "./"
+    uiState.file_list = find_file(uiState.findDirectory)
     while True : 
         if breakFlag == True : 
             break
 
-        MainView(selectIdx, file_list=file_list_txt)
-        while True :
-            if keyboard.is_pressed(80): #아래쪽 방향키 입력
-                
-                time.sleep(0.2)
+        MainView(uiState)
+        if uiState.uiStep == 0:
+            FileSelect(uiState)
+        elif uiState.uiStep == 1:
+            if len(uiState.analyze_result_list) > 0:
+                NameSelect(uiState.analyze_result_list[0], uiState)
 
-                if(selectIdx < len(file_list_txt)-1) :
-                    selectIdx+=1
-                    break
 
-            if keyboard.is_pressed(72): #위쪽 방향키 입력
-                
-                time.sleep(0.2)
-                if(selectIdx > 0) :
-                    selectIdx-=1
-                    break
+def FileSelect(uiState: UIState) :
 
-            if keyboard.is_pressed('enter'): #엔터 키 입력
-                time.sleep(0.2)
-                ret = AnalyzeView(f"{findDirectory}{file_list_txt[selectIdx]}")
-                if ret == -1 :
-                    break
+    while True :
+        if keyboard.is_pressed(80): #아래쪽 방향키 입력
+            
+            time.sleep(0.2)
 
-                ResultView()
+            if(uiState.selectedFileIdx < len(uiState.file_list)-1) :
+                uiState.selectedFileIdx+=1
                 break
-            if keyboard.is_pressed('ESC'): #엔터 키 입력
-                breakFlag=True  
+
+        if keyboard.is_pressed(72): #위쪽 방향키 입력
+            
+            time.sleep(0.2)
+            if(uiState.selectedFileIdx > 0) :
+                uiState.selectedFileIdx-=1
                 break
+
+        if keyboard.is_pressed('enter'): #엔터 키 입력
+            time.sleep(0.2)
+            messageHistory = AnalyzeView(f"{uiState.findDirectory}{uiState.file_list[uiState.selectedFileIdx]}")
+            if messageHistory is None:
+                break
+
+            uiState.analyze_result_list.append(messageHistory)
+            uiState.name_list = list(messageHistory.messagesBySender.keys())
+
+            uiState.uiStep = 1
+            #ResultView(messageHistory)
+            break
+        if keyboard.is_pressed('ESC'): #ESC 키 입력
+            breakFlag=True  
+            break
+
+def NameSelect(messageHistory: MessageHistory, uiState: UIState):
+    while True :
+        if keyboard.is_pressed(80): #아래쪽 방향키 입력    
+            time.sleep(0.2)
+            if(uiState.selectedNameIdx < len(uiState.name_list)-1) :
+                uiState.selectedNameIdx+=1
+                break
+
+        if keyboard.is_pressed(72): #위쪽 방향키 입력
+            
+            time.sleep(0.2)
+            if(uiState.selectedNameIdx > 0) :
+                uiState.selectedNameIdx-=1
+                break
+
+        if keyboard.is_pressed('enter'): #엔터 키 입력
+            time.sleep(0.2)
+            myName = uiState.name_list[uiState.selectedNameIdx]
+            myPersonInfo = createPersonInfo(messageHistory, myName)
+            ResultView(messageHistory, myPersonInfo)
+            uiState.Reset()
+            break
 
 
 if __name__ == "__main__":

@@ -20,7 +20,7 @@ class PersonInfo:
             termSum += term
 
         termCount = len(replyTerms)
-        print(f'replyTermNormalized = {termSum} / {termCount if termCount > 0 else None}')
+        #print(f'replyTermNormalized = {termSum} / {termCount if termCount > 0 else None}')
         self.replyTermNormalized = termSum / termCount if termCount > 0 else None
         self.AverageMessageLength = sum([len(message.getMessage()) for message in messages]) / len(messages) if len(messages) > 0 else None
         self.giftSentCount = len([message for message in messages if Messages.MessageAttributes.gift in message.attributes])
