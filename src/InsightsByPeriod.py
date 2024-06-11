@@ -2,7 +2,7 @@ from calendar import monthrange
 import datetime as dt
 from MessageHistory import MessageHistory
 
-class InsightsByPeroid:
+class InsightsByPeriod:
     def __init__(self, history: MessageHistory, periodStart: dt.date, peroidEnd: dt.date):
         self.periodStart = periodStart
         self.periodEnd = peroidEnd
@@ -20,12 +20,15 @@ class InsightsByPeroid:
             yearMonth = f'{msg.datetime.year}-{msg.datetime.month}'
             uniqueMonths.add(yearMonth)
         
+        result = []
         for yearMonth in uniqueMonths:
             year, month = yearMonth.split('-')
             monthDays = monthrange(int(year), int(month))[1]
             start = dt.date(int(year), int(month), 1)
             end = dt.date(int(year), int(month), monthDays)
-            yield InsightsByPeroid(history, start, end)
+            result.append(InsightsByPeriod(history, start, end))
+
+        return result
 
     
     def createYearly(history: MessageHistory):
@@ -33,7 +36,10 @@ class InsightsByPeroid:
         for msg in history.messages:
             uniqueYears.add(msg.datetime.year)
 
+        result = []
         for year in uniqueYears:
             start = dt.date(year, 1, 1)
             end = dt.date(year, 12, 31)
-            yield InsightsByPeroid(history, start, end)
+            result.append(InsightsByPeriod(history, start, end))
+        
+        return result

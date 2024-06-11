@@ -3,7 +3,7 @@ import re
 import datetime as dt
 import dateutil.parser
 from ConversationInfo import ConversationInfo
-from InsightsByPeriod import InsightsByPeroid
+from InsightsByPeriod import InsightsByPeriod
 from MessageHistory import MessageHistory
 import Messages
 import Utils
