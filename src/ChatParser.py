@@ -2,9 +2,9 @@ from typing import List
 import re
 import datetime as dt
 import dateutil.parser
-from ConversationInfo import ConversationInfo
 from InsightsByPeriod import InsightsByPeriod
 from MessageHistory import MessageHistory
+from ConversationInfo import ConversationInfo
 import Messages
 import Utils
 import os
@@ -105,11 +105,11 @@ if __name__ == "__main__":
     for personInfo in personInfos:
         personInfo.print()
     
-    monthlyInsights = InsightsByPeroid.createMonthly(history)
+    monthlyInsights = InsightsByPeriod.createMonthly(history)
     for monthlyInsight in monthlyInsights:
         monthlyInsight.print()
         
-    yearlyInsights = InsightsByPeroid.createYearly(history)
+    yearlyInsights = InsightsByPeriod.createYearly(history)
     for yearlyInsight in yearlyInsights:
         yearlyInsight.print()
 

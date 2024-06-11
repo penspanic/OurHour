@@ -8,10 +8,12 @@ from rich.progress import Progress, BarColumn
 from rich.table import Table
 from rich.console import Console
 
+from ConversationInfo import ConversationInfo
 from MessageHistory import MessageHistory
 from PersonInfo import PersonInfo
 from Utils import *
 from InsightsByPeriod import InsightsByPeriod
+from factory import createPersonInfos
 
 class UIState:
     def __init__(self):
@@ -49,6 +51,7 @@ class UIState:
 
 console = Console()
 
+testNameMode = False
 
 def ResultView(result: MessageHistory, personInfos: List[PersonInfo], myName: str) :
     console.clear()
@@ -56,12 +59,14 @@ def ResultView(result: MessageHistory, personInfos: List[PersonInfo], myName: st
 
     # myPersonInfo must be the first element
     myPersonInfo = None
+    yourPersonInfo = None
     for p in personInfos:
         if p.name == myName:
             myPersonInfo = p
             break
     personInfos.remove(myPersonInfo)
     personInfos.insert(0, myPersonInfo)
+    yourPersonInfo = personInfos[1]
 
     personInfoTble.add_column("항목", justify="center", style="cyan", no_wrap=True)
     for name in [p.name for p in personInfos]:
@@ -87,21 +92,7 @@ def ResultView(result: MessageHistory, personInfos: List[PersonInfo], myName: st
         personInfoTble.add_row(k, *values[k])
 
 
-    # Monthly Insights
-    monthlyTable = Table(title="[bold][월별 분석][/bold]",title_justify="center")
     monthlyInsights = InsightsByPeriod.createMonthly(result)
-    monthlyTable.add_column("기간", justify="center", style="cyan")
-    monthlyTable.add_column("메세지 수", justify="center", style="magenta")
-    for insight in monthlyInsights:
-        monthlyTable.add_row(f"{insight.periodStart} ~ {insight.periodEnd}", str(len(insight.messages)))
-
-    # Yearly Insights
-    yearlyTable = Table(title="[bold][연도별 분석][/bold]",title_justify="center")
-    yearlyInsights = InsightsByPeriod.createYearly(result)
-    yearlyTable.add_column("기간", justify="center", style="cyan")
-    yearlyTable.add_column("메세지 수", justify="center", style="magenta")
-    for insight in yearlyInsights:
-        yearlyTable.add_row(f"{insight.periodStart.year}", str(len(insight.messages)))
 
     # Yearly + Monthly Insights
     insightsByYear = {} # year -> [InsightsByPeriod]
@@ -133,11 +124,26 @@ def ResultView(result: MessageHistory, personInfos: List[PersonInfo], myName: st
                 row.append("0")
         periodTable.add_row(*row)
 
+    # conversation info
+    conversationInfo = ConversationInfo(me=myPersonInfo, you=yourPersonInfo)
+    conversationInfoDict = conversationInfo.asDictWithScore()
+    conversationTable = Table(title="[bold][대화 비교][/bold]",title_justify="center")
+    conversationTable.add_column("항목", justify="center", style="cyan", no_wrap=True)
+    conversationTable.add_column("값", justify="center", style="magenta")
+    conversationTable.add_column("점수", justify="center", style="magenta")
+    for k in conversationInfoDict.keys():
+        conversationTable.add_row(k, conversationInfoDict[k][0], str(conversationInfoDict[k][1]))
+
 
     console.print(personInfoTble, justify="center")
-    #console.print(monthlyTable, justify="center")
-    #console.print(yearlyTable, justify="center")
     console.print(periodTable, justify="center")
+    console.print(conversationTable, justify="center")
+    console.print("\n\n")
+
+    totalScore = sum([p[1] for p in conversationInfoDict.values()])
+    console.print(f'총 점수 : {totalScore}', justify="center")
+    console.print('점수가 높을수록 내가 더 호감을 가진다고 볼 수 있습니다.', justify="center")
+    
 
     console.print("\n\n")
     console.print("메인 화면으로 돌아가려면 Enter키를 입력하세요.")
@@ -278,8 +284,10 @@ def FileSelect(uiState: UIState) :
 
             uiState.analyze_result_list.append(messageHistory)
             # test : 영상 제작용 가짜 이름으로 대체
-            uiState.name_list = ["겐지", uiState.file_list[uiState.selectedFileIdx].split('.')[0]]
-            #uiState.name_list = list(messageHistory.messagesBySender.keys())
+            if testNameMode:
+                uiState.name_list = ["겐지", uiState.file_list[uiState.selectedFileIdx].split('.')[0]]
+            else:
+                uiState.name_list = list(messageHistory.messagesBySender.keys())
 
             uiState.uiStep = 1
             #ResultView(messageHistory)
@@ -308,8 +316,9 @@ def NameSelect(messageHistory: MessageHistory, uiState: UIState):
             myName = uiState.name_list[uiState.selectedNameIdx]
             personInfos = createPersonInfos(messageHistory)
             # test: 영상 제작용 가짜 이름으로 대체
-            personInfos[0].name = myName
-            personInfos[1].name = uiState.file_list[uiState.selectedFileIdx].split('.')[0]
+            if testNameMode:
+                personInfos[0].name = myName
+                personInfos[1].name = uiState.file_list[uiState.selectedFileIdx].split('.')[0]
             #
             ResultView(messageHistory, personInfos, myName)
             uiState.Reset()
